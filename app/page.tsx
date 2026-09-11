@@ -7,7 +7,7 @@ import WeatherDetail from '@/components/weather-detail';
 type Base='home'|'london'|'off';
 type Plan={date:string;base:Base;range:string;miles:string;reserve:string;rangeDate?:string};
 function day(n=0){const d=new Date(new Date().toLocaleDateString('en-CA',{timeZone:'Europe/London'})+'T12:00:00Z');d.setUTCDate(d.getUTCDate()+n);return d.toISOString().slice(0,10)}
-function defaults(date:string):Plan{return {date,base:[0,6].includes(new Date(date+'T12:00:00Z').getUTCDay())?'off':'home',range:'',miles:'',reserve:'30'}}
+function defaults(date:string):Plan{return {date,base:[0,6].includes(new Date(date+'T12:00:00Z').getUTCDay())?'off':'home',range:'',miles:'130',reserve:'30'}}
 export default function Page(){
 const [date,setDate]=useState(''),[plan,setPlan]=useState<Plan>(defaults('2026-09-12')),[data,setData]=useState<any>(null),[busy,setBusy]=useState(false),[msg,setMsg]=useState(''),[settings,setSettings]=useState(false),[saved,setSaved]=useState(false),[loaded,setLoaded]=useState(false),[tesla,setTesla]=useState<any>(null);
 useEffect(()=>setDate(day(1)),[]);
@@ -17,7 +17,7 @@ useEffect(()=>{fetch('/api/tesla/state',{cache:'no-store'}).then(r=>r.json()).th
 async function refresh(){setBusy(true);try{const r=await fetch('/api/briefing?date='+date);if(!r.ok)throw Error();setData(await r.json())}catch{setMsg('Refresh failed. Previously shown information may be out of date.')}finally{setBusy(false)}}
 async function save(){setMsg('Saving');try{const r=await fetch('/api/plan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...plan,date})});if(!r.ok)throw Error();setSaved(true);setMsg('Plan saved. Change it whenever you need.')}catch{setMsg('Could not save. Your entries are still here  try again.')}}
 const london=plan.base==='london',fresh=plan.rangeDate===day(),charge=london&&fresh&&plan.range!==''&&plan.miles!==''?Number(plan.range)<Number(plan.miles)+Number(plan.reserve):null;
-const liveRange=tesla?.vehicle?.rangeMiles!=null?Number(tesla.vehicle.rangeMiles):null, trip=Number(plan.miles), reserve=Number(plan.reserve||0), teslaAnswer=london&&liveRange!=null&&trip>0?(liveRange<trip/2?'plug':liveRange<trip+reserve?'return':'enough'):null;
+const liveRange=tesla?.vehicle?.rangeMiles!=null?Number(tesla.vehicle.rangeMiles):null, trip=Number(plan.miles)||130, reserve=Number(plan.reserve||0), teslaAnswer=london&&liveRange!=null?(liveRange<trip/2?'plug':liveRange<trip+reserve?'return':'enough'):null;
 const label=date?new Date(date+'T12:00:00Z').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'}):'Tomorrow';
 return <><header><a className="brand" href="/"><span><Moon size={21}/></span>day ahead<b>.</b></a><span className="header-note">A little planning. A lighter morning.</span><Button variant="outline" onClick={()=>setSettings(!settings)}><Settings2/>Your routine</Button></header><main>
 <div className="heading"><div><p className="eyebrow">YOUR PERSONAL DAILY BRIEFING</p><h1>Tomorrow, taken care of.</h1><p className="sub">{label}  Europe / London</p></div><label className="date-control">Plan for<Input type="date" value={date} min={day()} max={day(6)} onChange={e=>setDate(e.target.value)}/></label></div>
