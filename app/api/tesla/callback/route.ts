@@ -3,7 +3,7 @@ export async function GET(req:Request){
   const q=new URL(req.url).searchParams, code=q.get('code');
   if(!code)return new Response('Tesla authorisation was cancelled.',{status:400});
   const e=env as unknown as Record<string,unknown>, id=String(e.TESLA_CLIENT_ID||''), secret=String(e.TESLA_CLIENT_SECRET||'');
-  const body=new URLSearchParams({grant_type:'authorization_code',client_id:id,client_secret:secret,code,audience:'https://fleet-api.prd.eu.vn.cloud.tesla.com',redirect_uri:new URL('/api/tesla/callback',req.url).toString()});
+  const body=new URLSearchParams({grant_type:'authorization_code',client_id:id,client_secret:secret,code,audience:'https://fleet-api.prd.eu.vn.cloud.tesla.com',scope:'openid offline_access user_data vehicle_device_data',redirect_uri:new URL('/api/tesla/callback',req.url).toString()});
   const r=await fetch('https://fleet-auth.prd.vn.cloud.tesla.com/oauth2/v3/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});
   if(!r.ok)return new Response('Tesla token exchange failed.',{status:502});
   const token:any=await r.json();
