@@ -4,5 +4,7 @@ export async function GET(req:Request){
   const r=await fetch('https://fleet-api.prd.eu.vn.cloud.tesla.com/api/1/vehicles',{headers:{Authorization:`Bearer ${decodeURIComponent(m[1])}`,Accept:'application/json'}});
   if(!r.ok){const detail=await r.text();let message=`Tesla vehicle data unavailable (${r.status})`;try{const parsed=JSON.parse(detail);message=parsed.error_description||parsed.error||message}catch{}return Response.json({connected:false,error:message,status:r.status},{status:502});}
   const raw:any=await r.json(), v=raw.response?.[0]; if(!v)return Response.json({connected:true,vehicle:null});
-  return Response.json({connected:true,vehicle:{id:v.id,name:v.display_name||v.vehicle_name,state:v.state,chargeLevel:v.charge_state?.battery_level,rangeMiles:v.charge_state?.battery_range}});
+  const d=await fetch(`https://fleet-api.prd.eu.vn.cloud.tesla.com/api/1/vehicles/${encodeURIComponent(v.id)}/vehicle_data`,{headers:{Authorization:`Bearer ${decodeURIComponent(m[1])}`,Accept:'application/json'}});
+  const detail:any=d.ok?await d.json():{}; const car=detail.response||v, charge=car.charge_state||{};
+  return Response.json({connected:true,vehicle:{id:v.id,name:v.display_name||v.vehicle_name||car.vehicle_state?.vehicle_name,state:v.state,chargeLevel:charge.battery_level,rangeMiles:charge.battery_range}});
 }
