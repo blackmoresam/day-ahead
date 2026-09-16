@@ -16,8 +16,8 @@ const managedLinux = readExecutionProfile() === "managed-linux";
 const localBindingConfig = {
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
-  // Cron runs in UTC; the handler sends only when London local time is 20:00.
-  triggers: { crons: ["0 19 * * *", "0 20 * * *"] },
+  // Cron runs in UTC; the handler selects 06:00 or 20:00 London local time.
+  triggers: { crons: ["0 5 * * *", "0 6 * * *", "0 19 * * *", "0 20 * * *"] },
   d1_databases: d1
     ? [
         {

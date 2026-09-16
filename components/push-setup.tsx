@@ -44,7 +44,7 @@ export default function PushSetup(){
       const next=current||await registration.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:decodeKey(publicKey)});
       const response=await fetch('/api/push',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(next)});
       if(!response.ok){if(!current)await next.unsubscribe();const body=await response.json().catch(()=>({})) as {error?:string};setNeedsSignIn(response.status===401);throw Error(body.error||'Could not save this phone.');}
-      setSubscription(next);setMessage('Enabled. Tap “Send a test” to check delivery.');
+      setSubscription(next);setMessage('Both 20:00 and 06:00 alerts are enabled. Tap “Send a test” to check delivery.');
     }catch(error){setMessage(error instanceof Error?error.message:'Could not enable notifications.')}
     finally{setWorking(false)}
   }
@@ -74,8 +74,8 @@ export default function PushSetup(){
 
   const status=subscription?'iPhone push: enabled':supported===false?'iPhone push: open from Home Screen':publicKey?'iPhone push: ready to enable':'iPhone push: setup needed';
   return <div className="push-setup">
-    <div className="push-state"><Smartphone/><div><strong>{status}</strong><p>{subscription?'Evening check-in scheduled for 20:00 London time.':supported===false?'Open the installed Day Ahead icon on your iPhone to enable web push.':'Tap Enable on your iPhone to allow the 20:00 check-in.'}</p></div></div>
-    {supported&&publicKey&&<div className="push-actions">{subscription?<><Button variant="outline" disabled={working} onClick={test}>Send a test</Button><Button variant="outline" disabled={working} onClick={disable}>Turn off</Button></>:<Button variant="outline" disabled={working} onClick={enable}>Enable 20:00 push</Button>}</div>}
+    <div className="push-state"><Smartphone/><div><strong>{status}</strong><p>{subscription?'Check-ins scheduled for 20:00 and 06:00 London time.':supported===false?'Open the installed Day Ahead icon on your iPhone to enable web push.':'Tap Enable on your iPhone to allow the evening and morning check-ins.'}</p></div></div>
+    {supported&&publicKey&&<div className="push-actions">{subscription?<><Button variant="outline" disabled={working} onClick={test}>Send a test</Button><Button variant="outline" disabled={working} onClick={disable}>Turn off</Button></>:<Button variant="outline" disabled={working} onClick={enable}>Enable push alerts</Button>}</div>}
     {message&&<p className="push-message" role="status">{message}</p>}
     {needsSignIn&&<a className="push-signin" href="/signin-with-chatgpt?return_to=%2F">Sign in to finish setup</a>}
   </div>

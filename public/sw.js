@@ -1,7 +1,7 @@
 self.addEventListener('push',event=>{
   let message={title:'Day Ahead',body:'Your evening check-in is ready.',url:'/'};
   try{if(event.data)message={...message,...JSON.parse(event.data.text())}}catch{}
-  event.waitUntil(self.registration.showNotification(message.title,{body:message.body,tag:'day-ahead-evening',data:{url:message.url}}));
+  event.waitUntil(self.registration.showNotification(message.title,{body:message.body,tag:message.tag||'day-ahead',data:{url:message.url}}));
 });
 
 self.addEventListener('notificationclick',event=>{
