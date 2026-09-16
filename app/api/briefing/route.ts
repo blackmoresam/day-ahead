@@ -20,9 +20,10 @@ async function nationalHighways(date:string){
       const end=field(record,'overallEndTime');
       if((start&&start>=`${date}T22:00:00Z`)||(end&&end<=`${date}T05:00:00Z`))continue;
       // The feed covers the whole country. Keep only the Chartham–North Greenwich corridor.
+      let longitude:number|undefined;
       const onRoute=[...record.matchAll(/<posList>([^<]+)<\/posList>/g)].some((position)=>{
         const points=position[1].trim().split(/\s+/).map(Number);
-        for(let i=0;i+1<points.length;i+=2)if(points[i]>=51.2&&points[i]<=51.55&&points[i+1]>=-0.05&&points[i+1]<=1.08)return true;
+        for(let i=0;i+1<points.length;i+=2)if(points[i]>=51.2&&points[i]<=51.55&&points[i+1]>=-0.05&&points[i+1]<=1.08){longitude=points[i+1];return true}
         return false;
       });
       if(!onRoute)continue;
@@ -30,7 +31,7 @@ async function nationalHighways(date:string){
       const description=decode(field(record,'comment'));
       const localTime=(value:string)=>new Date(value).toLocaleString('en-GB',{timeZone:'Europe/London',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
       const timing=start&&end?` (${localTime(start)}–${localTime(end)})`:'';
-      items.push({road,location:location||road,description:`${description||'Closure or restriction reported'}${timing}`,start,end,status:field(record,'validityStatus')});
+      items.push({road,longitude,location:location||road,description:`${description||'Closure or restriction reported'}${timing}`,start,end,status:field(record,'validityStatus')});
     }
     return {configured:true,items:items.slice(0,30),message:items.length?'':'No reported A2 / M2 closures on your route during the travel day.'};
   }catch(e){return {configured:true,items:[],message:e instanceof Error?e.message:'National Highways feed unavailable'}}
