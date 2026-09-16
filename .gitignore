@@ -44,3 +44,7 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# local caches and build metadata
+/.npm-cache/
+*.tsbuildinfo
