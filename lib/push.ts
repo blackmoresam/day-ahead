@@ -25,9 +25,12 @@ export async function sendPush(subscription:PushSubscription,env:PushEnv,kind:'e
 }
 
 export async function sendScheduledPush(env:PushEnv,scheduledTime:number){
-  const localHour=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',hourCycle:'h23'}).format(scheduledTime);
-  if(localHour!=='20'&&localHour!=='06')return;
-  const kind=localHour==='20'?'evening':'morning';
+  // Cron is configured in UTC for both sides of the UK daylight-saving change.
+  // Classify the trigger by its UTC hour rather than relying on a timezone
+  // conversion that can differ between Worker runtimes.
+  const utcHour=new Date(scheduledTime).getUTCHours();
+  const kind=utcHour===19||utcHour===20?'evening':utcHour===5||utcHour===6?'morning':null;
+  if(!kind){ console.log('Ignoring non-briefing scheduled trigger',scheduledTime); return; }
   const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(scheduledTime);
   const get=(type:string)=>parts.find(part=>part.type===type)?.value||'';
   const localDate=`${get('year')}-${get('month')}-${get('day')}`;
