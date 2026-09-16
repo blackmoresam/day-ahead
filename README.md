@@ -2,8 +2,8 @@
 
 A personalised evening briefing that helps me prepare for the next day.
 
-![Day Ahead dashboard_1](160926 - Day Ahead Dashboard 1.png)
-![Day Ahead dashboard_1](160926 - Day Ahead Dashboard 2.png)
+![Day Ahead dashboard_1](160926_day_ahead_dashboard_1.png)
+![Day Ahead dashboard_1](160926_day_ahead_dashboard_2.png)
 
 Day Ahead combines my plans for tomorrow with weather, EV range,
 road disruption and public transport status to answer a simple question:
