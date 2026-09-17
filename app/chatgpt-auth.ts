@@ -1,3 +1,4 @@
+import { env } from "cloudflare:workers";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -19,6 +20,15 @@ const SIGN_OUT_PATH = "/signout-with-chatgpt";
 const CALLBACK_PATH = "/callback";
 
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
+  const standaloneUserId = env.DAY_AHEAD_USER_ID;
+  if (standaloneUserId) {
+    return {
+      userId: standaloneUserId,
+      displayName: "Sam",
+      email: "standalone@day-ahead.local",
+      fullName: "Sam",
+    };
+  }
   const requestHeaders = await headers();
   const userId = requestHeaders.get(USER_ID_HEADER);
   const email = requestHeaders.get(USER_EMAIL_HEADER);
