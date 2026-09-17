@@ -17,6 +17,7 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 const managedLinux = readExecutionProfile() === "managed-linux";
 
 const localBindingConfig = {
+  keep_vars: true,
   main: "./worker/index.ts",
   compatibility_flags: ["nodejs_compat"],
   // Cron runs in UTC; the handler selects 06:00 or 20:00 London local time.
